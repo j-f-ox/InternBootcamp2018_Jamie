@@ -12,4 +12,4 @@ Papa.parse(content, { //parse into a "matrix" array where each element is an arr
 var accounts = {};
 for (i=0; i<results.data.length; i++) {
 
-}
+}.
