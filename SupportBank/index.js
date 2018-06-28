@@ -27,16 +27,14 @@ class account {
 let userInput = readlineSync.question('What accounts would you like to see? Type List [name] or List All.\n');
 Papa.parse(content, { //parse into a "matrix" array where each element is an array of the rows 
     complete: function(results) {
-        let tranArray = results.data.slice(1); //an array of 5-element arrays of transactions - the slice is to remove the header
-        let transactions = []; //an array of payment objects
+        let tranArray = results.data.slice(1, results.data.length-1); //an array of 5-element arrays of transactions. The slice is to remove the header and the newline at the end.
         let accounts = {}; //a dictionary of a name and the corresponding account
-        for (i=0; i<tranArray.length; i++) { //transactions is an array of payment objects
+        for (i=0; i<tranArray.length; i++) {
             let personFrom =  tranArray[i][1]; //the name of the person the payment is from
             let personTo = tranArray[i][2]; //the name of the person the payment is to
-            currentPayment = new payment( moment(tranArray[i][0],"DD-MM-YYYY"),personFrom,personTo,tranArray[i][3],parseFloat(tranArray[i][4])*100 ); //note scaling of 100 to avoid floating point error
-            //transactions.push(currentPayment);
+            currentPayment = new payment( moment(tranArray[i][0],"DD-MM-YYYY"),personFrom,personTo,tranArray[i][3],parseFloat(tranArray[i][4]) );
             if (accounts[personFrom] === undefined) { //if personFrom doesn't have an account yet
-                accounts[personFrom] = new account(personFrom, [currentPayment], currentPayment.amount);
+                accounts[personFrom] = new account(personFrom, [currentPayment], -currentPayment.amount);
             } else {
                 accounts[personFrom].payments.push(currentPayment); //add the current payment to the list of personFrom's transactions
                 accounts[personFrom].balance -= currentPayment.amount; //update personFrom's account balance
@@ -49,12 +47,20 @@ Papa.parse(content, { //parse into a "matrix" array where each element is an arr
             }
         }
         for (var key in accounts) { 
-            accounts[key].balance = accounts[key].balance/100; //scale back down to pounds
+            accounts[key].balance = Math.round(accounts[key].balance * 100) / 100; //fix SMALL floating point error
         }
 
         
         if (userInput==='List All') {
-            console.log('All');
+            for (var key in accounts) { 
+                currentAccount = accounts[key];
+                currentBalance = currentAccount.balance;
+                if (currentBalance > 0) { //if the current person is in credit
+                    console.log(currentAccount.name+' is owed '+currentBalance.toString());
+                } else {
+                    console.log(currentAccount.name+' owes '+(-currentBalance).toString()); //- sign to remove the negative sign of balance
+                }
+            }
         } else if (userInput.slice(0,5)==='List ' && userInput.length>5) { //check for user input beginning 'List ' followed by something
             let name = userInput.slice(5); //get just the name from the user input
             if (accounts[name] === undefined) {
