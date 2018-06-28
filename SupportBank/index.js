@@ -1,11 +1,29 @@
+//set-up-modules////////////////////////////////////////////
 var fs = require('fs');
 var Papa = require('papaparse');
 var moment = require('moment');
 moment().format();
 var readlineSync = require('readline-sync');
-var file = './Transactions2014.csv';
-var content = fs.readFileSync(file, "utf8");
+var log4js = require('log4js');
+const logger = log4js.getLogger();
+logger.debug("Some debug messages");
+log4js.configure({
+    appenders: {
+        file: { type: 'fileSync', filename: 'logs/debug.log' }
+    },
+    categories: {
+        default: { appenders: ['file'], level: 'debug'}
+    }
+});
+//logger.info('cheese value:', 9)
 
+//import-files///////////////////////////////////////////////
+var trans14 = './Transactions2014.csv';
+var transactions2014 = fs.readFileSync(trans14, "utf8");
+var trans15 = './DodgyTransactions2015.csv';
+var transactions2015 = fs.readFileSync(trans15, "utf8");
+
+//classes////////////////////////////////////////////////////
 class payment {
     constructor(date, from, to, narrative, amount) {
         this.date = date;
@@ -15,7 +33,6 @@ class payment {
         this.amount = amount;
     }
 }
-
 class account {
     constructor(name, payments, balance) {
         this.name = name;
@@ -24,8 +41,9 @@ class account {
     }
 }
 
+//body/////////////////////////////////////////////////////////
 let userInput = readlineSync.question('What accounts would you like to see? Type List [name] or List All.\n');
-Papa.parse(content, { //parse into a "matrix" array where each element is an array of the rows 
+Papa.parse(transactions2014, { //parse into a "matrix" array where each element is an array of the rows 
     complete: function(results) {
         let tranArray = results.data.slice(1, results.data.length-1); //an array of 5-element arrays of transactions. The slice is to remove the header and the newline at the end.
         let accounts = {}; //a dictionary of a name and the corresponding account
@@ -82,7 +100,12 @@ Papa.parse(content, { //parse into a "matrix" array where each element is an arr
 
 
 
+//let userInput = readlineSync.question('What accounts would you like to see? Type List [name] or List All.\n');
+Papa.parse(transactions2015, { //parse into a "matrix" array where each element is an array of the rows 
+    complete: function(results) {
 
+    }
+});
 
 
 
