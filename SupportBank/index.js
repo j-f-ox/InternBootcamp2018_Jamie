@@ -28,7 +28,32 @@ for (i=0; i<tArray.length; i++) { //transactions is an array of objects
     transactions.push( new payment( moment(tArray[i][0],"DD-MM-YYYY"), tArray[i][1], tArray[i][2], tArray[i][3], parseFloat(tArray[i][4]) ) );
 }
 
-console.log(transactions[0].date)
+/*var result = transactions.filter(function( payment ) {
+    console.log( payment.amount == 7.8);
+  });*/
+
+const result = transactions.filter(transactions => transactions.amount === 7.8);
+var obs = transactions.filter(transactions => transactions.from === 'Jon A');
+var obs2 = transactions.filter(transactions => transactions.from === 'Jamie');
+console.log(result)
+console.log(obs)
+console.log(obs2)
+console.log(obs.length)
+console.log(obs2.length)
+
+var userInput = readlineSync.question('What accounts would you like to see? Type List [name] or List All.\n');
+if (userInput==='List All') {
+    console.log('hi');
+} else if (userInput.slice(0,5)==='List ') { //check for user input beginning 'List '
+    name = userInput.slice(5,); //get just the name from the user input
+    nameTransactions = transactions.filter(transactions => transactions.from === name); //payments from 'name'
+    nameTransactions.push( transactions.filter(transactions => transactions.to === name) ); //payments to 'name'
+    console.log(nameTransactions)
+} else {
+    console.log('Invalid input')
+}
+
+
 
 
 /*
@@ -55,31 +80,4 @@ for (let name in accounts) {
     accounts[name] = accounts[name]/100; //scale the amount owed back down
     //console.log(name + (accounts[name]).toString())
 }
-//console.log(accounts)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-var nameToList = readlineSync.question('What accounts would you like to see? Type List [name] or List All.');
-if (nameToList==='All') {
-    console.log('hi');
-} else if (typeof accounts[nameToList] !== 'undefined') {
-    if (accounts[nameToList] > 0) { //if the person is in credit
-        console.log(nameToList + ' is owed £' + accounts[nameToList].toString());
-    } else { //if the person owes money
-        console.log(nameToList + ' owes £' + accounts[nameToList].toString());
-    }
-} else {
-    console.log('Invalid input.')
-}*/
+//console.log(accounts)*/
