@@ -1,2 +1,5 @@
-[2018-06-28T15:45:41.195] [INFO] default - cheese value: 5
-[2018-06-28T15:45:57.853] [INFO] default - cheese value: 9
+[2018-06-28T16:38:39.359] [DEBUG] default - Some debug messages
+[2018-06-28T16:39:41.736] [DEBUG] default - Some debug messages
+[2018-06-28T16:42:10.094] [DEBUG] default - Some debug messages
+[2018-06-28T17:02:45.231] [DEBUG] default - Some debug messages
+[2018-06-28T17:03:15.281] [DEBUG] default - Some debug messages

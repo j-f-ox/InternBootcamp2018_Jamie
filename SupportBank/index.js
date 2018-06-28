@@ -2,11 +2,9 @@
 var fs = require('fs');
 var Papa = require('papaparse');
 var moment = require('moment');
-moment().format();
 var readlineSync = require('readline-sync');
 var log4js = require('log4js');
-const logger = log4js.getLogger();
-logger.debug("Some debug messages");
+
 log4js.configure({
     appenders: {
         file: { type: 'fileSync', filename: 'logs/debug.log' }
@@ -15,6 +13,8 @@ log4js.configure({
         default: { appenders: ['file'], level: 'debug'}
     }
 });
+const logger = log4js.getLogger();
+logger.debug("Some debug messages");
 //logger.info('cheese value:', 9)
 
 //import-files///////////////////////////////////////////////
@@ -41,31 +41,42 @@ class account {
     }
 }
 
+
+
 //body/////////////////////////////////////////////////////////
 let userInput = readlineSync.question('What accounts would you like to see? Type List [name] or List All.\n');
 Papa.parse(transactions2014, { //parse into a "matrix" array where each element is an array of the rows 
     complete: function(results) {
         let tranArray = results.data.slice(1, results.data.length-1); //an array of 5-element arrays of transactions. The slice is to remove the header and the newline at the end.
         let accounts = {}; //a dictionary of a name and the corresponding account
+        function updateAccount(someRow, sign) {
+            //direction is -1 for payment 'from' and 1 for 'to'
+            if (sign===1) {
+                var somePerson = someRow[2];
+            } else {
+                var somePerson = someRow[1];
+            }
+            if (!accounts[somePerson]) { //if somePerson doesn't have an account yet, create a blank one and rerun the function
+                accounts[somePerson] = new account(somePerson, [], 0);
+                updateAccount(someRow, sign);
+            } else {
+                someAmount = someRow[4];
+                if (isNaN(someAmount)) { //check that the current balance is a number
+                    logger.info('Amount is not a number. The value of column 5, row ');
+                }
+                somePayment = new payment( moment(someRow[0],"DD-MM-YYYY"),someRow[1],someRow[2],someRow[3],parseFloat(someAmount) );
+                accounts[somePerson].payments.push(somePayment); //add the current payment to the list of somePerson's transactions
+                accounts[somePerson].balance =  accounts[somePerson].balance + sign*someAmount; //update somePerson's account balance
+            }    
+        }
+        
         for (i=0; i<tranArray.length; i++) {
-            let personFrom =  tranArray[i][1]; //the name of the person the payment is from
-            let personTo = tranArray[i][2]; //the name of the person the payment is to
-            currentPayment = new payment( moment(tranArray[i][0],"DD-MM-YYYY"),personFrom,personTo,tranArray[i][3],parseFloat(tranArray[i][4]) );
-            if (accounts[personFrom] === undefined) { //if personFrom doesn't have an account yet
-                accounts[personFrom] = new account(personFrom, [currentPayment], -currentPayment.amount);
-            } else {
-                accounts[personFrom].payments.push(currentPayment); //add the current payment to the list of personFrom's transactions
-                accounts[personFrom].balance -= currentPayment.amount; //update personFrom's account balance
-            }
-            if (accounts[personTo] === undefined) { //analagous as for personFrom
-                accounts[personTo] = new account(personTo, [currentPayment], currentPayment.amount);
-            } else {
-                accounts[personTo].payments.push(currentPayment);
-                accounts[personTo].balance += currentPayment.amount;
-            }
+            currentRow = tranArray[i]; //the row of transaction data we are working with
+            updateAccount(currentRow, 1); //update the 'to' account
+            updateAccount(currentRow, -1);//update the 'from' account
         }
         for (var key in accounts) { 
-            accounts[key].balance = Math.round(accounts[key].balance * 100) / 100; //fix SMALL floating point error
+            accounts[key].balance = Math.round(accounts[key].balance * 100) / 100; //fix small floating point error
         }
 
         
@@ -74,9 +85,9 @@ Papa.parse(transactions2014, { //parse into a "matrix" array where each element 
                 currentAccount = accounts[key];
                 currentBalance = currentAccount.balance;
                 if (currentBalance > 0) { //if the current person is in credit
-                    console.log(currentAccount.name+' is owed '+currentBalance.toString());
+                    console.log(currentAccount.name+' is owed '+currentBalance.toFixed(2).toString());
                 } else {
-                    console.log(currentAccount.name+' owes '+(-currentBalance).toString()); //- sign to remove the negative sign of balance
+                    console.log(currentAccount.name+' owes '+(-currentBalance).toFixed(2).toString()); //- sign to remove the negative sign of balance
                 }
             }
         } else if (userInput.slice(0,5)==='List ' && userInput.length>5) { //check for user input beginning 'List ' followed by something
@@ -87,9 +98,9 @@ Papa.parse(transactions2014, { //parse into a "matrix" array where each element 
                 let nameTransactions = accounts[name].payments;
                 for (i=0; i<nameTransactions.length; i++) {
                     let current = nameTransactions[i];
-                    console.log(current.from+' paid '+current.to+' £'+current.amount.toString()+' on '+moment(current.date).format('DD MMM YYYY')+' for '+current.narrative)
+                    console.log(current.from+' paid '+current.to+' £'+current.amount.toFixed(2).toString()+' on '+moment(current.date).format('DD MMM YYYY')+' for '+current.narrative)
                 } 
-                console.log(name+'\'s account balance is £'+accounts[name].balance.toString())
+                console.log(name+'\'s account balance is £'+accounts[name].balance.toFixed(2).toString())
             }
         } else {
             console.log('Invalid input')
