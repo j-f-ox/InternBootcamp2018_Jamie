@@ -6,13 +6,6 @@ var readlineSync = require('readline-sync');
 var file = './Transactions2014.csv';
 var content = fs.readFileSync(file, "utf8");
 
-Papa.parse(content, { //parse into a "matrix" array where each element is an array of the rows 
-    complete: function(results) {
-        //console.log("Finished:", results.data);
-        tArray = results.data.slice(1,); //an array of 5 element arrays - remove global if possible
-    }
-});
-
 class payment {
     constructor(date, from, to, narrative, amount) {
         this.date = date;
@@ -23,35 +16,67 @@ class payment {
     }
 }
 
-transactions = [];
-for (i=0; i<tArray.length; i++) { //transactions is an array of objects
-    transactions.push( new payment( moment(tArray[i][0],"DD-MM-YYYY"), tArray[i][1], tArray[i][2], tArray[i][3], parseFloat(tArray[i][4]) ) );
+class account {
+    constructor(name, payments, balance) {
+        this.name = name;
+        this.payments = payments;
+        this.balance = balance;
+    }
 }
 
-/*var result = transactions.filter(function( payment ) {
-    console.log( payment.amount == 7.8);
-  });*/
+let userInput = readlineSync.question('What accounts would you like to see? Type List [name] or List All.\n');
+Papa.parse(content, { //parse into a "matrix" array where each element is an array of the rows 
+    complete: function(results) {
+        let tranArray = results.data.slice(1); //an array of 5-element arrays of transactions - the slice is to remove the header
+        let transactions = []; //an array of payment objects
+        let accounts = {}; //a dictionary of a name and the corresponding account
+        for (i=0; i<tranArray.length; i++) { //transactions is an array of payment objects
+            let personFrom =  tranArray[i][1]; //the name of the person the payment is from
+            let personTo = tranArray[i][2]; //the name of the person the payment is to
+            currentPayment = new payment( moment(tranArray[i][0],"DD-MM-YYYY"),personFrom,personTo,tranArray[i][3],parseFloat(tranArray[i][4])*100 ); //note scaling of 100 to avoid floating point error
+            //transactions.push(currentPayment);
+            if (accounts[personFrom] === undefined) { //if personFrom doesn't have an account yet
+                accounts[personFrom] = new account(personFrom, [currentPayment], currentPayment.amount);
+            } else {
+                accounts[personFrom].payments.push(currentPayment); //add the current payment to the list of personFrom's transactions
+                accounts[personFrom].balance -= currentPayment.amount; //update personFrom's account balance
+            }
+            if (accounts[personTo] === undefined) { //analagous as for personFrom
+                accounts[personTo] = new account(personTo, [currentPayment], currentPayment.amount);
+            } else {
+                accounts[personTo].payments.push(currentPayment);
+                accounts[personTo].balance += currentPayment.amount;
+            }
+        }
+        for (var key in accounts) { 
+            accounts[key].balance = accounts[key].balance/100; //scale back down to pounds
+        }
 
-const result = transactions.filter(transactions => transactions.amount === 7.8);
-var obs = transactions.filter(transactions => transactions.from === 'Jon A');
-var obs2 = transactions.filter(transactions => transactions.from === 'Jamie');
-console.log(result)
-console.log(obs)
-console.log(obs2)
-console.log(obs.length)
-console.log(obs2.length)
+        
+        if (userInput==='List All') {
+            console.log('All');
+        } else if (userInput.slice(0,5)==='List ' && userInput.length>5) { //check for user input beginning 'List ' followed by something
+            let name = userInput.slice(5); //get just the name from the user input
+            if (accounts[name] === undefined) {
+                console.log('There are no transactions corresponding to that name')
+            } else { //ie if there are some transactions corresponding to 'name'
+                let nameTransactions = accounts[name].payments;
+                for (i=0; i<nameTransactions.length; i++) {
+                    let current = nameTransactions[i];
+                    console.log(current.from+' paid '+current.to+' £'+current.amount.toString()+' on '+moment(current.date).format('DD MMM YYYY')+' for '+current.narrative)
+                } 
+                console.log(name+'\'s account balance is £'+accounts[name].balance.toString())
+            }
+        } else {
+            console.log('Invalid input')
+        }
+    }
+});
 
-var userInput = readlineSync.question('What accounts would you like to see? Type List [name] or List All.\n');
-if (userInput==='List All') {
-    console.log('hi');
-} else if (userInput.slice(0,5)==='List ') { //check for user input beginning 'List '
-    name = userInput.slice(5,); //get just the name from the user input
-    nameTransactions = transactions.filter(transactions => transactions.from === name); //payments from 'name'
-    nameTransactions.push( transactions.filter(transactions => transactions.to === name) ); //payments to 'name'
-    console.log(nameTransactions)
-} else {
-    console.log('Invalid input')
-}
+
+
+
+
 
 
 
