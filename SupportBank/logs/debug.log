@@ -3,3 +3,22 @@
 [2018-06-28T16:42:10.094] [DEBUG] default - Some debug messages
 [2018-06-28T17:02:45.231] [DEBUG] default - Some debug messages
 [2018-06-28T17:03:15.281] [DEBUG] default - Some debug messages
+[2018-06-28T17:22:17.066] [DEBUG] default - Some debug messages
+[2018-06-28T17:22:19.938] [INFO] default - Amount is not a number. The value of column 5, row 
+[2018-06-28T17:22:19.940] [INFO] default - Amount is not a number. The value of column 5, row 
+[2018-06-28T17:22:51.877] [DEBUG] default - Some debug messages
+[2018-06-28T17:22:54.176] [INFO] default - Amount is not a number. The value of column 5, row 
+[2018-06-28T17:22:54.180] [INFO] default - Amount is not a number. The value of column 5, row 
+[2018-06-28T17:23:51.601] [DEBUG] default - Some debug messages
+[2018-06-28T17:23:55.394] [INFO] default - ERROR- given amount is not a number. The value of column 5, row  26  is  One Cheeseburger
+[2018-06-28T17:23:55.395] [INFO] default - ERROR- given amount is not a number. The value of column 5, row  26  is  One Cheeseburger
+[2018-06-28T17:24:33.703] [DEBUG] default - Some debug messages
+[2018-06-28T17:24:34.887] [INFO] default - ERROR- given amount is not a number. The value of column 5, row  26  is  One Cheeseburger
+[2018-06-28T17:47:25.282] [DEBUG] default - Some debug messages
+[2018-06-28T17:47:27.033] [INFO] default - ERROR - given amount is not a number. The value of column 5, row  26  is  One Cheeseburger
+[2018-06-28T18:01:46.066] [DEBUG] default - Some debug messages
+[2018-06-28T18:17:05.550] [DEBUG] default - Some debug messages
+[2018-06-28T18:17:42.490] [DEBUG] default - Some debug messages
+[2018-06-28T18:21:50.298] [DEBUG] default - Some debug messages
+[2018-06-28T18:29:04.551] [DEBUG] default - Some debug messages
+[2018-06-28T18:29:19.723] [DEBUG] default - Some debug messages
