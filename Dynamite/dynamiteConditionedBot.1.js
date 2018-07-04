@@ -18,7 +18,7 @@ class Bot {
                 this.enemyHasNoDynamite = true;
             }
         }
-        if (!this.enemyHasNoDynamite) {
+        if (!this.enemyHasNoDynamite) { //if the eney still has some dynamite left
             return 'W';  
         } else {
             while (this.dynamiteCount<100) {  
