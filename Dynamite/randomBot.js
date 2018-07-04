@@ -1,6 +1,7 @@
+//play random moves
 class Bot {
-    constructor(dynamiteCount) {
-        this.dynamiteCount = dynamiteCount;
+    constructor() {
+        this.dynamiteCount = 0;
     }
 
     makeMove(gamestate) {
@@ -10,8 +11,7 @@ class Bot {
         } else {
             var randIndex = Math.floor(Math.random() * 5);
             if (randIndex===4) {
-                let dynamiteNum = this.dynamiteCount;
-                this.dynamiteCount = (typeof(dynamiteNum)==='undefined') ? 1 : dynamiteNum+1;
+                this.dynamiteCount += 1;
             }
         }
         return possibleMoves[randIndex];
