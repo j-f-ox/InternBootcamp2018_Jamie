@@ -88,7 +88,7 @@ const args = {
 };
 
 let games = args.games ? process.argv[4]: 1;
-let scoreToWin = args.scoreToWin ? process.argv[5] : 1000;
+let scoreToWin = args.scoreToWin ? process.argv[5] : 1000; 
 let dynamite = args.dynamite ? process.argv[6] : 100;
 
 // Options for the game
