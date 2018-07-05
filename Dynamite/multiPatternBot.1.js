@@ -1,9 +1,11 @@
 //analyse previous rounds looking for patterns of moves to predict the future
 //tries to find the longest pattern possible then decreases this length requirement
+//plays dynamite after draws
 class Bot {
     constructor() {
         this.dynamiteCount = 0;
         this.enemyHasDynamite = true;
+        this.drawCount = 0; //how many draws in a row have there been
         //this.playerHasDynamite = true; //goes to false when the bot runs out of dynamite
     }
     
@@ -124,9 +126,27 @@ class Bot {
         }
     }
 
+    updateDrawCount(round) {
+        if (round.p1 === round.p2) { //if the previous round was a draw
+            this.drawCount += 1;
+        } else {
+            this.drawCount = 0;
+        }
+    }
+    
     moveDecider(probableEnemyMove, gamestate) {
         //tell the bot what to do depending on what the enemy will probably do
         let possibleMoves = ['R', 'P', 'S', 'W', 'D'];
+        let previousRound = gamestate.rounds[gamestate.rounds.length-1];
+        this.updateDrawCount(previousRound);
+
+        if (0<this.drawCount && this.dynamiteCount<100) { //if the previous round was a draw
+            if (this.drawCount>=5) { //if there have been over 5 draws play water
+                return 'W';
+            }
+            this.dynamiteCount += 1;
+            return 'D';
+        }
 
         if (this.enemyHasDynamite === true) { //check if the eenmy has any dynamite left
             if (this.getAmountOfMoves(gamestate, 'D') >= 100) {
@@ -160,28 +180,35 @@ class Bot {
         }
     }
 
-    makeRandomMove(numberOfMoves = 5) {
+    makeRandomMove(numberOfMoves = 5, withWater = true) {
         //make a pseudorandom move out of the first "numberOfMoves" elements of possibleMoves
         let possibleMoves = ['R', 'P', 'S', 'W', 'D'];
+        if (withWater === false) {
+            possibleMoves = ['R', 'P', 'S', 'D'];
+            if (numberOfMoves === 5) {
+                numberOfMoves = 4;
+            }
+        }
         let randIndex = Math.floor(Math.random() * numberOfMoves);
-        if (randIndex === 4) {
+        let outputMove = possibleMoves[randIndex];
+        if (outputMove === 'D') {
             this.dynamiteCount += 1;
         }
-        return possibleMoves[randIndex]; 
+        return outputMove; 
     }
 
 
     makeMove(gamestate) {
-        if (gamestate.rounds.length < 10) { //play randomly on the first 10 turns
-            return this.makeRandomMove()
+        if (gamestate.rounds.length < 10) { //play randomly on the first 10 turns (but not water)
+            return this.makeRandomMove(5, false);
         }
-        let maxPatternLength = 10;
+        let maxPatternLength = Math.min(20, gamestate.rounds.length);
         let probableEnemyMove = this.patternFinder(gamestate, maxPatternLength);
         while (!probableEnemyMove && maxPatternLength>1) { //keep decreasing maxPatternLength until the pattern has already occurred or just play rock
             maxPatternLength -= 1;
             probableEnemyMove = this.patternFinder(gamestate, maxPatternLength);
         }
-        probableEnemyMove = probableEnemyMove || this.makeRandomMove(); //if the pattern has never occurred the player will play randomly
+        probableEnemyMove = probableEnemyMove || this.makeRandomMove(5, false); //if the pattern has never occurred the player will play randomly except water
         return this.moveDecider(probableEnemyMove, gamestate);
     }
 }
