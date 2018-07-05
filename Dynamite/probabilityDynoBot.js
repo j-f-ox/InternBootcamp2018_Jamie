@@ -1,12 +1,17 @@
 //note: this assumes that you are player 1
 //chooses moves based on assuming that p2 will play the move that they've plauyed the most so far
-//this bot doesn't ever play dynamite
+//this bot is probabilityBot with Dynamite
 class Bot {
+    constructor() {
+        this.dynamiteCount = 0;
+        this.enemyHasDynamite = true;
+        //this.playerHasDynamite = true; //goes to false when the bot runs out of dynamite
+    }
 
     getAmountOfMoves(gamestate, move) {
         //return the number of times p2 has played the given move
         if (!['R','P','S','W','D'].includes(move)) { //if "move" is not a valid move
-            throw ('Error: invalid move passed to getAmountOfMoves')
+            throw ('Error: invalid move passed to getAmountOfMoves. '+move+' is not a recognised move.')
         }
         let roundsSoFar = gamestate.rounds;
         let moveCount = 0;
@@ -14,6 +19,9 @@ class Bot {
             if (roundsSoFar[i].p2 === move) {
                 moveCount += 1;
             }
+        }
+        if (move==='D' && moveCount===100) {
+            this.enemyHasDynamite = false;
         }
         return moveCount;
     }
@@ -51,8 +59,17 @@ class Bot {
             var randIndex = Math.floor(Math.random() * 3);
             return possibleMoves[randIndex];
         }
-        if (mostProbableEnemyMove === 'D') {
-            return 'W';
+        if (mostProbableEnemyMove==='D') {
+            if (this.enemyHasDynamite===true) {
+                return 'W';
+            } else {
+                if (this.dynamiteCount<100) {
+                    return 'D'; //play dynamite if enemy has no dynamite and the player still has dynamite
+                } else { //if both players are out of dynamite choose randomly from rock, paper and scissors
+                    var randIndex = Math.floor(Math.random() * 3);
+                    return possibleMoves[randIndex];
+                }
+            }
         }
         throw ('Error: mostProbableEnemyMove = ' + mostProbableEnemyMove);
     }
