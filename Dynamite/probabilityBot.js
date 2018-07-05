@@ -1,5 +1,5 @@
 //note: this assumes that you are player 1
-//chooses moves based on assuming that p2 will play the move that they've plauyed the most so far
+//chooses moves based on assuming that p2 will play the move that they've played the most so far
 //this bot doesn't ever play dynamite
 class Bot {
 

@@ -1,5 +1,5 @@
 //note: this assumes that you are player 1
-//chooses moves based on assuming that p2 will play the move that they've plauyed the most so far
+//chooses moves based on assuming that p2 will play the move that they've played the most so far
 //this bot is probabilityBot with Dynamite
 class Bot {
     constructor() {
@@ -20,7 +20,7 @@ class Bot {
                 moveCount += 1;
             }
         }
-        if (move==='D' && moveCount===100) {
+        if (move==='D' && moveCount===100) { //!NOT ideal: reassigns every round
             this.enemyHasDynamite = false;
         }
         return moveCount;
