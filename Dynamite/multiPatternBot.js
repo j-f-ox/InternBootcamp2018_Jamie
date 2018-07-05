@@ -1,5 +1,5 @@
 //analyse previous rounds looking for patterns of moves to predict the future
-//the length of the pattern is set in makeMove
+//tries to find the longest pattern possible then decreases this length requirement
 class Bot {
     constructor() {
         this.dynamiteCount = 0;
@@ -157,14 +157,25 @@ class Bot {
         }
     }
 
+    makeRandomMove(numberOfMoves = 5) {
+        //make a pseudorandom move out of the first "numberOfMoves" elements of possibleMoves
+        let possibleMoves = ['R', 'P', 'S', 'W', 'D'];
+        let randIndex = Math.floor(Math.random() * numberOfMoves);
+        return possibleMoves[randIndex]; 
+    }
+
 
     makeMove(gamestate) {
-        let possibleMoves = ['R', 'P', 'S', 'W', 'D'];
         if (gamestate.rounds.length < 10) { //play randomly on the first 10 turns
-            let randIndex = Math.floor(Math.random() * 5);
-            return possibleMoves[randIndex]; 
+            return this.makeRandomMove()
         }
-        let probableEnemyMove = this.patternFinder(gamestate, 4) || 'R'; //if the pattern has never occurred assume the player will play rock
+        let maxPatternLength = 10;
+        let probableEnemyMove = this.patternFinder(gamestate, maxPatternLength);
+        while (!probableEnemyMove && maxPatternLength>1) { //keep decreasing maxPatternLength until the pattern has already occurred or just play rock
+            maxPatternLength -= 1;
+            probableEnemyMove = this.patternFinder(gamestate, maxPatternLength);
+        }
+        probableEnemyMove = probableEnemyMove || this.makeRandomMove(); //if the pattern has never occurred the player will play randomly
 
         return this.moveDecider(probableEnemyMove);
     }
