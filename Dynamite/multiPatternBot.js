@@ -6,7 +6,7 @@ class Bot {
         this.enemyHasDynamite = true;
         //this.playerHasDynamite = true; //goes to false when the bot runs out of dynamite
     }
-
+    
     getAmountOfMoves(gamestate, move) {
         //return the number of times p2 has played the given move
         if (!['R', 'P', 'S', 'W', 'D'].includes(move)) { //if "move" is not a valid move
@@ -19,9 +19,9 @@ class Bot {
                 moveCount += 1;
             }
         }
-        if (move === 'D' && moveCount === 100) {
+        /*if (move === 'D' && moveCount === 100) {
             this.enemyHasDynamite = false;
-        }
+        }*/
         return moveCount;
     }
 
@@ -127,9 +127,15 @@ class Bot {
         }
     }
 
-    moveDecider(probableEnemyMove) {
+    moveDecider(probableEnemyMove, gamestate) {
         //tell the bot what to do depending on what the enemy will probably do
         let possibleMoves = ['R', 'P', 'S', 'W', 'D'];
+
+        if (this.enemyHasDynamite === true) { //check if the eenmy has any dynamite left
+            if (this.getAmountOfMoves(gamestate, 'D') >= 100) {
+                this.enemyHasDynamite = false;
+            }
+        }
         if (probableEnemyMove === 'R') {
             return 'P';
         }
@@ -148,10 +154,10 @@ class Bot {
                 return 'W';
             } else {
                 if (this.dynamiteCount<100) {
+                    this.dynamiteCount += 1;
                     return 'D'; //play dynamite if enemy has no dynamite and the player still has dynamite
                 } else { //if both players are out of dynamite choose randomly from rock, paper and scissors
-                    let randIndex = Math.floor(Math.random() * 3);
-                    return possibleMoves[randIndex];
+                    return this.makeRandomMove(3);
                 }
             }
         }
@@ -161,6 +167,9 @@ class Bot {
         //make a pseudorandom move out of the first "numberOfMoves" elements of possibleMoves
         let possibleMoves = ['R', 'P', 'S', 'W', 'D'];
         let randIndex = Math.floor(Math.random() * numberOfMoves);
+        if (randIndex === 4) {
+            this.dynamiteCount += 1;
+        }
         return possibleMoves[randIndex]; 
     }
 
@@ -176,8 +185,7 @@ class Bot {
             probableEnemyMove = this.patternFinder(gamestate, maxPatternLength);
         }
         probableEnemyMove = probableEnemyMove || this.makeRandomMove(); //if the pattern has never occurred the player will play randomly
-
-        return this.moveDecider(probableEnemyMove);
+        return this.moveDecider(probableEnemyMove, gamestate);
     }
 }
 
