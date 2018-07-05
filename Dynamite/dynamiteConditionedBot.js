@@ -9,7 +9,7 @@ class Bot {
 
     makeMove(gamestate) {
         if (gamestate.rounds.length < 1) {
-            return 'W' //play water on the first turn
+            return 'W'; //play water on the first turn
         }
         let lastMoves = gamestate.rounds[gamestate.rounds.length-1];
         if (lastMoves.p2==='D') { //update the amount of dynamites the enemy has used
@@ -23,9 +23,9 @@ class Bot {
         } else {
             while (this.dynamiteCount<100) {  
                 this.dynamiteCount += 1;              
-                return 'D'
+                return 'D';
             } 
-            return 'R'
+            return 'R';
         }
     }
 }
