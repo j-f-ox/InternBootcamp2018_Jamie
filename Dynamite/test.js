@@ -98,6 +98,108 @@ function getArrayOfP2Moves(gamestate) {
     return p2Moves;
 }
 
-gamestate = {'rounds': [{'p1': 'R','p2': 'S'}, {'p1': 'R','p2': 'P'}, {'p1': 'R','p2': 'R'}, {'p1': 'R','p2': 'S'}, {'p1': 'R','p2': 'P'}]};
-patternFinder(gamestate, 2);
-console.log(patternFinder(gamestate, 2));
+function didILose(round) { //returns whether p1 lost the previous round
+    //return false if I won, true if I lost
+    let possibleMoves = ['R', 'P', 'S', 'W', 'D'];
+    let p1Move = round.p1;
+    let p2Move = round.p2;
+    if (p1Move === p2Move) {
+        return 0;
+    }
+    if (p1Move === 'D') {
+        if (p2Move === 'W') {
+            return true;
+        }
+        return false;
+    }
+    if (p1Move === 'W') {
+        if (p2Move === 'D') {
+            return false;
+        }
+        return true;
+    }
+
+    if (p2Move === 'D') { //otherwise p1 played rock, paper or scissors
+        return true;
+    }
+    if (p2Move === 'W') { 
+        return false;
+    }
+    let p1Ind = possibleMoves.indexOf(p1Move); 
+    let p2Ind = possibleMoves.indexOf(p2Move);
+    if (p1Ind!==0 && p2Ind!==0) { //if paper and scissors were played
+        return (p1Move === 'P') ? true : false; //if paper and scissors were played
+    } else { //if rock and either paper or scissors were played
+        if (p1Move === 'R') {
+            return (p2Move === 'P') ? true : false;
+        }
+        if (p2Move === 'R') {
+            return (p1Move === 'P') ? false : true;
+        }
+    }
+
+}
+function recentLossPercentage(gamestate, end,  start=1) {
+    //return what fraction of rounds I lost (NB: not drew as 0 is falsy) between rounds start and end
+    let relevantRounds = gamestate.rounds.slice(start-1, end); //start -1 as indexing starts from 0
+    let lossCount = 0;
+    for (let i=0; i<relevantRounds.length; i++) {
+        if (didILose(relevantRounds[i])) { //if p1 lost this round
+            lossCount+=1;
+        }
+    }
+    return lossCount/(end-start+1)
+}
+function doesPlayer2KnowMyStrategy(gamestate) {
+    let numberOfRounds = gamestate.rounds.length;
+    let initialLosses = this.recentLossPercentage(gamestate, 50,  1);
+    let recentLosses = this.recentLossPercentage(gamestate, numberOfRounds,  numberOfRounds-49);
+    if (initialLosses/recentLosses<0.98) { //if the other bot is doing better recently than at the start
+        console.log('they know');
+        return true;
+    } 
+    return false;
+}
+
+
+//gamestate = {'rounds': [{'p1': 'R','p2': 'S'}, {'p1': 'R','p2': 'P'}, {'p1': 'R','p2': 'R'}, {'p1': 'R','p2': 'S'}, {'p1': 'R','p2': 'P'}]};
+/*
+console.log('50s')
+for (var i=0; i<20; i++) {
+    console.log('i='+i+' '+recentLossPercentage(gamestate, i*50+50,  i*50+1));
+}
+
+console.log('100s')
+for (var i=0; i<10; i++) {
+    console.log('i='+i+' '+recentLossPercentage(gamestate, i*100+100,  i*100+1));
+}
+
+console.log('200s')
+for (var i=0; i<10; i++) {
+    console.log('i='+i+' '+recentLossPercentage(gamestate, i*200+200,  i*200+1));
+}*/
+function updateDrawCount(round) { //count the number of draws in a row
+    if (drawCount === 1 && round.p2==='W') {
+        doesEnemyWaterAfterDraws = true;
+    }
+    if (round.p1 === round.p2) { //if the previous round was a draw
+        drawCount += 1;
+    } else {
+        drawCount = 0;
+    }   
+}
+gamestate = {"rounds":[{"p1":"P","p2":"S"},{"p1":"P","p2":"R"},{"p1":"R","p2":"R"},{"p1":"D","p2":"D"},{"p1":"R","p2":"W"},{"p1":"R","p2":"R"},{"p1":"D","p2":"D"},{"p1":"S","p2":"W"},{"p1":"D","p2":"P"},{"p1":"S","p2":"R"},{"p1":"W","p2":"R"},{"p1":"W","p2":"P"},{"p1":"P","p2":"R"},{"p1":"P","p2":"P"},{"p1":"D","p2":"D"},{"p1":"W","p2":"W"},{"p1":"W","p2":"P"},{"p1":"P","p2":"P"},{"p1":"D","p2":"R"},{"p1":"P","p2":"P"},{"p1":"D","p2":"W"}/*,{"p1":"S","p2":"R"}*/]}
+
+doesEnemyWaterAfterDraws = false;
+drawCount = 0;
+previousRound = gamestate.rounds[gamestate.rounds.length-2];
+console.log(previousRound)
+updateDrawCount(previousRound)
+console.log(doesEnemyWaterAfterDraws)
+console.log(drawCount)
+
+previousRound = gamestate.rounds[gamestate.rounds.length-1];
+console.log(previousRound)
+updateDrawCount(previousRound)
+console.log(doesEnemyWaterAfterDraws)
+console.log(drawCount)

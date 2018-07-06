@@ -129,11 +129,14 @@ class Bot {
     }
 
     updateDrawCount(round) { //count the number of draws in a row
+        if (this.drawCount === 1 && round.p2==='W') {
+            this.doesEnemyWaterAfterDraws = true;
+        }
         if (round.p1 === round.p2) { //if the previous round was a draw
             this.drawCount += 1;
         } else {
             this.drawCount = 0;
-        }
+        } 
     }
 
     updateRoundsSinceEnemyWater(round) { //count the number of rounds since the enemy played water
@@ -162,6 +165,24 @@ class Bot {
         return mostProbableEnemyMove;
     }
     
+    moveBasedOnDrawCount() { //tell you what to do based on draw related info
+        if (0<this.drawCount && this.dynamiteCount<100) { //if the previous round was a draw
+            if (this.doesEnemyWaterAfterDraws) { //if the enemy uses water after draws play randomly from R/P/S
+                return this.makeRandomMove(3);
+            }
+            if (this.drawCount>=2) { //if there have been over 3 draws, probably play water
+                if (Math.random()<0.2 && this.dynamiteCount<100) {
+                    this.dynamiteCount+=1;
+                    return 'D';
+                }
+                return 'W';
+            }
+            this.dynamiteCount += 1; //if there have been [1,5] draws play dynamite
+            return 'D';
+        }
+        return false;
+    }
+
     moveDecider(probableEnemyMove, gamestate) {
         //tell the bot what to do depending on what the enemy will probably do
         let previousRound = gamestate.rounds[gamestate.rounds.length-1];
@@ -170,29 +191,17 @@ class Bot {
         this.updateEnemyDynamite(gamestate);
         this.updateInvertStrategy(gamestate);
         
-        if (this.roundsSinceEnemyWater > 40) { //if the enemy bot can't use water effectively
-            if (this.dynamiteCount < 100) {
+        if (this.roundsSinceEnemyWater > 40) { //if the enemy bot can't use water effectively, dynamite 40% of the time
+            if (this.dynamiteCount < 100 && Math.random() < 0.4) {
                 this.dynamiteCount += 1;
                 return 'D';
             }
         }
 
-        if (0<this.drawCount && this.dynamiteCount<100) { //if the previous round was a draw
-            if (this.drawCount>=5) { //if there have been over 5 draws play water
-                return 'W';
-            }
-            this.dynamiteCount += 1; //if there have been [1,5] draws play dynamite
-            return 'D';
+        let potentialMove = this.moveBasedOnDrawCount();
+        if (potentialMove !== false) {
+            return potentialMove;
         }
-
-        /*if (gamestate.rounds.length%29 === 3) { //play randomly except water every 29 moves
-            if (this.dynamiteCount < 100) {
-                return this.makeRandomMove(5, false);
-            } else {
-                return this.makeRandomMove(3);
-            }
-        }*/
-
         
         if (probableEnemyMove === 'R') {
             return 'P';
@@ -312,35 +321,35 @@ class Bot {
         if (numberOfRounds > numerOfRoundsAnalysed) {
             let initialLosses = this.recentLossPercentage(gamestate, numerOfRoundsAnalysed,  1);
             let recentLosses = this.recentLossPercentage(gamestate, numberOfRounds,  numberOfRounds-numerOfRoundsAnalysed+1);
-            if (initialLosses/recentLosses<0.95) { //if the other bot is doing better recently than at the start
+            if (initialLosses/recentLosses<0.9) { //if the other bot is doing better recently than at the start
                 return true;
-            } 
-            /*if (recentLosses > 0.6) {
-                return true;
-            }*/
+            } else {
+                return false;
+            }
         }
         return false;
     }
 
+    getSensibleRandomMove() {
+        let potentialMove = this.moveBasedOnDrawCount();
+        if (potentialMove !== false) {
+            return potentialMove;
+        } else {
+            return this.makeRandomMove(3); //make a random RPS move
+        }      
+    }
+
     makeMove(gamestate) {
         let numberOfRounds = gamestate.rounds.length;
-        if (numberOfRounds < 10) { //play randomly on the first 10 turns (but not water)
+        if (numberOfRounds < 5) { //play randomly on the first 5 turns (but not water)
             return this.makeRandomMove(5, false);
         }
-
-        /*if (numberOfRounds%27===3) { //every 27 rounds play based off probabilities rather than patterns
-            var probableEnemyMove = this.findProbableMove(gamestate);
-        } else { //otherwise play using pattern finder
+        if (this.doesPlayer2KnowMyStrategy) { //if p2 has guesses the pattern stategy
+            var myMove = this.getSensibleRandomMove();
+        } else {
             var probableEnemyMove = this.findProbableMoveFromPatterns(gamestate);
-        }*/
-        var probableEnemyMove = this.findProbableMoveFromPatterns(gamestate);
-        var myMove = this.moveDecider(probableEnemyMove, gamestate);
-        if (this.invertStrategy) { //if the other player seems to know my strategy, assume they'll counter myMove and counter that
-            /*var enemyCounterMove = this.moveDecider(myMove, gamestate);
-            var myMove = this.moveDecider(enemyCounterMove, gamestate);*/
-            var probableEnemyMove = this.makeRandomMove(5,false);
+            var myMove = this.moveDecider(probableEnemyMove, gamestate);
         }
-
         return myMove;
     }
 }
