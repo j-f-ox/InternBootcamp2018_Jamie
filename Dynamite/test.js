@@ -189,7 +189,7 @@ function updateDrawCount(round) { //count the number of draws in a row
     }   
 }
 gamestate = {"rounds":[{"p1":"P","p2":"S"},{"p1":"P","p2":"R"},{"p1":"R","p2":"R"},{"p1":"D","p2":"D"},{"p1":"R","p2":"W"},{"p1":"R","p2":"R"},{"p1":"D","p2":"D"},{"p1":"S","p2":"W"},{"p1":"D","p2":"P"},{"p1":"S","p2":"R"},{"p1":"W","p2":"R"},{"p1":"W","p2":"P"},{"p1":"P","p2":"R"},{"p1":"P","p2":"P"},{"p1":"D","p2":"D"},{"p1":"W","p2":"W"},{"p1":"W","p2":"P"},{"p1":"P","p2":"P"},{"p1":"D","p2":"R"},{"p1":"P","p2":"P"},{"p1":"D","p2":"W"}/*,{"p1":"S","p2":"R"}*/]}
-
+/*
 doesEnemyWaterAfterDraws = false;
 drawCount = 0;
 previousRound = gamestate.rounds[gamestate.rounds.length-2];
@@ -202,4 +202,31 @@ previousRound = gamestate.rounds[gamestate.rounds.length-1];
 console.log(previousRound)
 updateDrawCount(previousRound)
 console.log(doesEnemyWaterAfterDraws)
-console.log(drawCount)
+console.log(drawCount)*/
+function makeRandomMove(numberOfMoves = 5, withWater = true) {
+    //make a pseudorandom move out of the first "numberOfMoves" elements of possibleMoves
+    //if withWater = false then make a random non-water move
+    let possibleMoves = ['R', 'P', 'S', 'W', 'D'];
+    if (withWater === false) {
+        possibleMoves = ['R', 'P', 'S', 'D'];
+        if (numberOfMoves === 5) {
+            numberOfMoves = 4;
+        }
+    }
+    let randIndex = Math.floor(Math.random() * numberOfMoves);
+    let outputMove = possibleMoves[randIndex];
+    if (outputMove === 'D') {
+        if (dynamiteCount>=100) {
+            return makeRandomMove(3);
+        }
+    }
+    return outputMove; 
+}
+dynamiteCount = 3;
+console.log(makeRandomMove(5, false))
+console.log(makeRandomMove(5, false))
+console.log(makeRandomMove(5, false))
+console.log(makeRandomMove(5, false))
+console.log(makeRandomMove(5, false))
+console.log(makeRandomMove(5, false))
+console.log(makeRandomMove(5, false))
