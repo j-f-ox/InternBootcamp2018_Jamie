@@ -7,3 +7,8 @@
     margin-left: 20px;
   }
   
+.selectedMove {
+  border: 20px;
+  background: #f34;
+  border: 1px solid #999;
+}

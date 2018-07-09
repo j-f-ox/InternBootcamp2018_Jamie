@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import './game.css';
+import './square.css';
+import './board.css';
 import Game from './game';
 
 class App extends Component {

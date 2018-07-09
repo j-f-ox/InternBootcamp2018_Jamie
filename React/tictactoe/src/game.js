@@ -37,6 +37,15 @@ class Game extends Component {
         });
     }
 
+    makeSelectedMoveBold(move) {
+        console.log(document.getElementsByClassName("selectedMove"))
+        let previouslySelectedMove = document.getElementsByClassName("selectedMove");
+        if (previouslySelectedMove) {
+            previouslySelectedMove.classList.remove("selectedMove");
+        }
+        document.getElementById("moveNumber"+move).classList.add("selectedMove");
+    }
+
     render() {
         const history = this.state.history;
         const current = history[this.state.stepNumber];
@@ -46,9 +55,16 @@ class Game extends Component {
             const desc = move ?
             'Go to move #' + move :
             'Go to game start';
+            let moveID = 'moveNumber'.concat(move);
             return (
+                
                 <li key={move}>
-                    <button onClick={() => this.jumpTo(move)}>{desc}</button>
+                    <button onClick={() => {
+                        this.jumpTo(move);
+                        this.makeSelectedMoveBold(move);
+                    }}
+                    id={moveID}>
+                    {desc}</button>
                 </li>
             );
         })
