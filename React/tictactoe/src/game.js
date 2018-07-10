@@ -10,7 +10,7 @@ class Game extends Component {
             }],
             stepNumber: 0,
             xIsNext: true,
-            winningSquares: null, //the 3 squares in a row for which the game was won
+            winningSquares: [], //the 3 squares in a row for which the game was won
         };
     }
 
@@ -38,58 +38,23 @@ class Game extends Component {
         });
     }
 
-    makeSelectedMoveBold(move) {
-        let previouslySelectedMoves = document.getElementsByClassName("selectedMove");
-        if (previouslySelectedMoves.length > 0) {
-            previouslySelectedMoves[0].classList.remove("selectedMove");
-        }
-        let currentlySelectedMove = document.getElementById("moveNumber" + move);
-        if (currentlySelectedMove) { //i.e. if the button already exists
-            currentlySelectedMove.classList.add("selectedMove");
-        }
-    }
-
-    updateWinningSquares(currentStep) {
-        if (this.state.winningRoundNumber!==currentStep) {
-            let previousWinningSquares = document.getElementsByClassName("winningSquare");
-            const len = previousWinningSquares.length;
-            for (let i=0; i<len; i++) {
-                previousWinningSquares[0].classList.remove("winningSquare");
-            }
-            return;
-        }
-        const winningSquareIndices = this.state.winningSquares;
-        if (winningSquareIndices) {
-            for (let i=0; i<3; i++) {
-                let currentWinningSquare = 'square' + winningSquareIndices[i];
-                document.getElementById(currentWinningSquare).classList.add("winningSquare");
-            }
-
-        }
-    }
-
     render() {
         const history = this.state.history;
         const currentStep = this.state.stepNumber;
         const current = history[currentStep];
-        this.makeSelectedMoveBold(currentStep);
         const winnerData = calculateWinner(current.squares);
         const moves = history.map((step, move) => {
             const desc = move ?
-                'Go to move #' + move :
+                'Go to move #' + move + ' (col: ' + ((move+2)%3 + 1) + ', row: ' + Math.ceil(move/3) + ')' :
                 'Go to game start';
-            let moveID = 'moveNumber'.concat(move);
-
+            const buttonClassName = (move===currentStep) ? "goToMoveButton selectedMove" : "goToMoveButton";
             return (
                 <li key={move}>
-                    <button class="goToMoveButton selectedMove"
+                    <button className={buttonClassName}
                         onClick={() => {
                             this.jumpTo(move);
-                            this.makeSelectedMoveBold(move);
                         }}
-                        id={moveID}
-                    >
-                        {desc}</button>
+                    >{desc}</button>
                 </li>
             );
         })
@@ -105,7 +70,6 @@ class Game extends Component {
         } else {
             status = "It's a draw. Better luck next time!";
         }
-        this.updateWinningSquares(this.state.stepNumber);
 
         return (
             <div className="game">
@@ -113,6 +77,7 @@ class Game extends Component {
                     <Board
                         squares={current.squares}
                         onClick={(i) => this.handleClick(i)}
+                        winningSquares = {this.state.winningSquares ? this.state.winningSquares : []}
                     />
 
                 </div>

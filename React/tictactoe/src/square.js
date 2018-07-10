@@ -1,8 +1,9 @@
 import React from 'react';
 
 function Square(props) {
+    const squareClasses = props.isSquareSelected ? 'square winningSquare' : 'square';
     return (
-        <button className="square" onClick={props.onClick} id={props.idValue}>
+        <button className={squareClasses} onClick={props.onClick}>
             {props.value}
         </button>
     );

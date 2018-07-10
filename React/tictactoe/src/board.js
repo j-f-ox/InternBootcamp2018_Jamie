@@ -2,13 +2,17 @@ import React, { Component } from 'react';
 import Square from './square';
 
 class Board extends Component {
+    /*constructor(props) {
+        super(props);
+    }*/
 
     renderSquare(i) {
+        const isSquareSelected = this.props.winningSquares.includes(i);
         return (<Square
             value={this.props.squares[i]}
             key={i}
             onClick={() => this.props.onClick(i)}
-            idValue={'square'+i}
+            isSquareSelected={isSquareSelected}
         />
         );
     }
