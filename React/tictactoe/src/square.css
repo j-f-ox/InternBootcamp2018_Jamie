@@ -20,3 +20,7 @@
   .kbd-navigation .square:focus {
     background: #ddd;
   }
+
+  .winningSquare {
+    border: 3px solid #444;
+  }

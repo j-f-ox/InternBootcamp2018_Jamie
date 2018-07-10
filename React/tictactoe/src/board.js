@@ -8,6 +8,7 @@ class Board extends Component {
             value={this.props.squares[i]}
             key={i}
             onClick={() => this.props.onClick(i)}
+            idValue={'square'+i}
         />
         );
     }
