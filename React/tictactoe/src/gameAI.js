@@ -78,8 +78,6 @@ class Game extends Component {
                         squares={current.squares}
                         onClick={(i) => this.handleClick(i)}
                         winningSquares = {this.state.winningSquares ? this.state.winningSquares : []}
-                        numberOfStepsSoFar={history.length}
-                        stepNumber={currentStep}
                     />
 
                 </div>

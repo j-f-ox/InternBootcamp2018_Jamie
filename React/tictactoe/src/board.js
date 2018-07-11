@@ -6,8 +6,11 @@ class Board extends Component {
         super(props);
     }*/
 
-    renderSquare(i) {
-        const isSquareSelected = this.props.winningSquares.includes(i);
+    renderSquare(i) { //check the logic of square deselection when changing history by doing a different sequence of moves
+        let isSquareSelected = this.props.winningSquares.includes(i);
+        if (isSquareSelected) {
+            isSquareSelected = (this.props.numberOfStepsSoFar-1 === this.props.stepNumber) ? isSquareSelected : false; //deselect if time travelling
+        }
         return (<Square
             value={this.props.squares[i]}
             key={i}
